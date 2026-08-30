@@ -4,16 +4,12 @@ import shutil
 import tempfile
 from pathlib import Path
 
-import pytest
-
 from devcheck_ai.autofix import (
+    FIX_RULES,
     FixEngine,
-    FixPlan,
     FixReport,
     discover_python_files,
-    FIX_RULES,
 )
-
 
 FIXTURES_DIR = Path(__file__).parent / "fixtures" / "old_sdk_code"
 
@@ -454,11 +450,11 @@ class TestApplyFixes:
         assert report.total_applied > 0
         content = (self.tmpdir / "src" / "vertex_old.py").read_text()
         # Original active code should be commented out
-        assert '# import vertexai' in content
-        assert '# vertexai.init()' in content
-        assert '# from vertexai.generative_models' in content
-        assert '# from vertexai.language_models' in content
-        assert '# from vertexai.vision_models' in content
+        assert "# import vertexai" in content
+        assert "# vertexai.init()" in content
+        assert "# from vertexai.generative_models" in content
+        assert "# from vertexai.language_models" in content
+        assert "# from vertexai.vision_models" in content
 
     def test_vertex_client_injected(self):
         engine = FixEngine(self.tmpdir / "src", package_filter="google-cloud-aiplatform")

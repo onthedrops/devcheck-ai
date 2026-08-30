@@ -12,14 +12,13 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Optional
 
-from .manifests import Dependency
-from .core import DriftType, CheckResult, _safe_version
-from packaging.version import Version
+from .core import CheckResult, DriftType, _safe_version
 
 
 @dataclass
 class BreakingChange:
     """A single breaking change entry from the registry."""
+
     package: str
     ecosystem: str
     from_version_range: str
@@ -45,6 +44,7 @@ class BreakingChange:
 @dataclass
 class BreakingChangeMatch:
     """A match between a dependency and a breaking change entry."""
+
     package: str
     ecosystem: str
     pinned_version: str

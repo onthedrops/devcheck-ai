@@ -8,65 +8,83 @@ from pathlib import Path
 import click
 from rich.console import Console
 
-from .manifests import discover_manifests, collect_dependencies
-from .registries import fetch_batch
-from .core import check_all, RiskLevel
-from .reporters import report_cli, report_json, report_markdown, report_fix
-from .smoke import smoke_test
-from .breaking_changes import load_registry, match_breaking_changes
 from .autofix import FixEngine
+from .breaking_changes import load_registry, match_breaking_changes
+from .core import RiskLevel, check_all
+from .manifests import collect_dependencies, discover_manifests
+from .registries import fetch_batch
+from .reporters import report_cli, report_fix, report_json, report_markdown
+from .smoke import smoke_test
 
 
 @click.command()
 @click.argument("project_path", type=click.Path(exists=True, path_type=Path))
 @click.option(
-    "--format", "output_format",
+    "--format",
+    "output_format",
     type=click.Choice(["table", "json", "markdown"], case_sensitive=False),
     default="table",
     help="Output format (default: table)",
 )
 @click.option(
-    "--output", "-o", "output_file",
+    "--output",
+    "-o",
+    "output_file",
     type=click.Path(path_type=Path),
     default=None,
     help="Write output to file (default: stdout)",
 )
 @click.option(
-    "--smoke", is_flag=True,
+    "--smoke",
+    is_flag=True,
     help="Run import smoke tests on high-risk dependencies",
 )
 @click.option(
-    "--show-urls", is_flag=True,
+    "--show-urls",
+    is_flag=True,
     help="Show changelog/repository URLs in output",
 )
 @click.option(
-    "--timeout", default=15, show_default=True,
+    "--timeout",
+    default=15,
+    show_default=True,
     help="Registry request timeout in seconds",
 )
 @click.option(
-    "--delay", default=0.1, show_default=True,
+    "--delay",
+    default=0.1,
+    show_default=True,
     help="Delay between registry requests (rate limiting, seconds)",
 )
 @click.option(
-    "--fail-on", "fail_on",
+    "--fail-on",
+    "fail_on",
     type=click.Choice(["none", "medium", "high", "critical"], case_sensitive=False),
     default="high",
     help="Exit with non-zero code if dependencies at or above this risk level are found (default: high)",
 )
 @click.option(
-    "--breaking-changes", "breaking_changes_flag", is_flag=True,
+    "--breaking-changes",
+    "breaking_changes_flag",
+    is_flag=True,
     help="Check dependencies against the AI SDK breaking changes registry for known migration details",
 )
 @click.option(
-    "--fix", "fix_flag", is_flag=True,
+    "--fix",
+    "fix_flag",
+    is_flag=True,
     help="Scan source files and show planned auto-fixes as a diff (dry run, no files modified)",
 )
 @click.option(
-    "--write-fixes", "write_fixes_flag", is_flag=True,
+    "--write-fixes",
+    "write_fixes_flag",
+    is_flag=True,
     help="Apply auto-fixes to source files (creates backups in .devcheck-ai-backups/ first)",
 )
 @click.option(
-    "--fix-package", "fix_package", default=None,
+    "--fix-package",
+    "fix_package",
+    default=None,
     help="Only apply fixes for a specific package (e.g., openai, google-generativeai)",
 )
 def main(
@@ -108,16 +126,13 @@ def main(
 
     if not manifests and not (fix_flag or write_fixes_flag):
         console.print("[yellow]No dependency manifests found.[/yellow]")
-        console.print(
-            "Expected: pyproject.toml, requirements.txt, requirements-dev.txt, or package.json"
-        )
+        console.print("Expected: pyproject.toml, requirements.txt, requirements-dev.txt, or package.json")
         sys.exit(2)
 
     # Collect dependencies (skip if no manifests)
     dependencies = collect_dependencies(manifests) if manifests else []
     if dependencies:
-        console.print(f"[dim]Found {len(dependencies)} unique dependencies across "
-                       f"{len(manifests)} manifest(s)[/dim]")
+        console.print(f"[dim]Found {len(dependencies)} unique dependencies across {len(manifests)} manifest(s)[/dim]")
     elif manifests:
         console.print("[yellow]No dependencies found in manifests.[/yellow]")
     else:
@@ -183,8 +198,7 @@ def main(
         if not plans:
             console.print("  No fixable patterns found in source files.")
         else:
-            console.print(f"  Found {len(plans)} fixable pattern(s) across "
-                           f"{len(set(p.file_path for p in plans))} file(s)")
+            console.print(f"  Found {len(plans)} fixable pattern(s) across {len(set(p.file_path for p in plans))} file(s)")
 
             if write_fixes_flag:
                 report = engine.apply_fixes(plans, dry_run=False)

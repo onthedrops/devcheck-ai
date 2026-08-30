@@ -1,16 +1,14 @@
 """Tests for manifest parsing."""
 
-import pytest
 from pathlib import Path
 
 from devcheck_ai.manifests import (
-    parse_requirements_txt,
-    parse_pyproject_toml,
-    parse_package_json,
-    discover_manifests,
     collect_dependencies,
+    discover_manifests,
+    parse_package_json,
+    parse_pyproject_toml,
+    parse_requirements_txt,
 )
-
 
 FIXTURES = Path(__file__).parent / "fixtures"
 

@@ -58,3 +58,39 @@ devcheck_ai = ["data/*.json"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+
+[tool.ruff]
+target-version = "py39"
+line-length = 140
+exclude = ["tests/fixtures"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "SIM", "PERF"]
+ignore = [
+    "UP045",   # Optional[X] needed for Python 3.9 compatibility
+    "BLE001",  # blind except is intentional in smoke tests
+    "PLW1510", # subprocess.run without check is intentional
+    "DTZ005",  # datetime.now() without tz is fine for timestamping
+    "SIM102",  # nested if is more readable in some cases
+    "SIM116",  # dict-instead-of-if is less readable for client init
+    "SIM108",  # ternary instead of if-else is less readable
+    "ISC004",  # implicit string concat in collections
+    "E501",    # line length — migration notes are long strings
+    "PERF102", # .items() → .values() loses key context in reports
+    "PERF401", # list.extend over list.append is less readable
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = [
+    "F821",   # undefined names in deprecated code fixtures
+    "F841",   # unused vars in test fixtures
+    "F401",   # unused imports in deprecated code fixtures
+    "E402",   # import order in test fixtures
+    "F704",   # await outside function in async fixtures
+    "PLE1142",# await outside async in fixtures
+]
+"tests/fixtures/**" = ["ALL"]  # deprecated code patterns — do not lint
+"tests/test_autofix.py" = ["ALL"]  # contains deprecated code patterns
+
+[tool.ruff.lint.pep8-naming]
+extend-ignore-names = ["test_*"]

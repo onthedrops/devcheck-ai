@@ -3,11 +3,9 @@
 from __future__ import annotations
 
 import subprocess
-import sys
 import tempfile
 import venv
 from pathlib import Path
-from typing import Optional
 
 from .manifests import Dependency
 
@@ -139,8 +137,7 @@ def smoke_test_node(
         # Try to require
         require_name = dependency.name
         test_script = (
-            f"try {{ const m = require('{require_name}'); "
-            f"console.log('OK'); }} catch(e) {{ console.error(e.message); process.exit(1); }}"
+            f"try {{ const m = require('{require_name}'); console.log('OK'); }} catch(e) {{ console.error(e.message); process.exit(1); }}"
         )
         try:
             result = subprocess.run(

@@ -12,6 +12,7 @@ import requests
 @dataclass
 class PackageInfo:
     """Information about a package from its registry."""
+
     name: str
     ecosystem: str  # "pypi" or "npm"
     latest_version: Optional[str] = None
@@ -118,7 +119,6 @@ def fetch_npm_info(package_name: str, timeout: int = 15) -> PackageInfo:
 
     # Package metadata
     latest_data = data.get("versions", {}).get(info.latest_version, {})
-    npm_info = data.get("npm-info", {})
 
     info.description = data.get("description") or latest_data.get("description")
     info.homepage_url = data.get("homepage") or latest_data.get("homepage")
@@ -129,13 +129,11 @@ def fetch_npm_info(package_name: str, timeout: int = 15) -> PackageInfo:
         repo_url = repo.get("url", "")
         # Clean up git+ and git:// prefixes, strip .git suffix
         repo_url = repo_url.replace("git+", "").replace("git://", "https://")
-        if repo_url.endswith(".git"):
-            repo_url = repo_url[:-4]
+        repo_url = repo_url.removesuffix(".git")
         info.repository_url = repo_url
     elif isinstance(repo, str):
         repo_url = repo.replace("git+", "").replace("git://", "https://")
-        if repo_url.endswith(".git"):
-            repo_url = repo_url[:-4]
+        repo_url = repo_url.removesuffix(".git")
         info.repository_url = repo_url
 
     # Check for npm deprecation (can be at package level or version level)
@@ -151,14 +149,13 @@ def fetch_npm_info(package_name: str, timeout: int = 15) -> PackageInfo:
     if info.release_date:
         try:
             from datetime import datetime, timedelta
+
             release_dt = datetime.fromisoformat(info.release_date)
             two_years_ago = datetime.now() - timedelta(days=730)
             if release_dt < two_years_ago:
                 if not info.is_deprecated:
                     info.is_deprecated = True
-                    info.deprecation_message = (
-                        f"Potentially unmaintained: last release {info.release_date}"
-                    )
+                    info.deprecation_message = f"Potentially unmaintained: last release {info.release_date}"
         except (ValueError, TypeError):
             pass
 

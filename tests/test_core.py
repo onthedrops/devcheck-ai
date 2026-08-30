@@ -1,20 +1,16 @@
 """Tests for the core analysis engine."""
 
-import pytest
-from unittest.mock import patch, MagicMock
-
+from devcheck_ai.core import (
+    DriftType,
+    RiskLevel,
+    calculate_risk,
+    check_all,
+    check_dependency,
+    detect_drift,
+    summarize_results,
+)
 from devcheck_ai.manifests import Dependency
 from devcheck_ai.registries import PackageInfo
-from devcheck_ai.core import (
-    detect_drift,
-    calculate_risk,
-    check_dependency,
-    check_all,
-    summarize_results,
-    RiskLevel,
-    DriftType,
-    CheckResult,
-)
 
 
 class TestDetectDrift:
@@ -68,7 +64,8 @@ class TestCalculateRisk:
     def test_deprecated(self):
         dep = Dependency(name="test", pinned_version="1.0.0", ecosystem="pypi", manifest="req.txt")
         info = PackageInfo(
-            name="test", ecosystem="pypi",
+            name="test",
+            ecosystem="pypi",
             latest_version="1.0.0",
             is_deprecated=True,
             deprecation_message="Use new-package instead",
@@ -80,7 +77,8 @@ class TestCalculateRisk:
     def test_yanked_version(self):
         dep = Dependency(name="test", pinned_version="1.0.0", ecosystem="pypi", manifest="req.txt")
         info = PackageInfo(
-            name="test", ecosystem="pypi",
+            name="test",
+            ecosystem="pypi",
             latest_version="1.0.0",
             yanked_versions=["1.0.0"],
         )

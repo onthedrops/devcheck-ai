@@ -21,6 +21,7 @@ else:
 @dataclass
 class Dependency:
     """A single dependency with its pinned version and source manifest."""
+
     name: str
     pinned_version: str
     ecosystem: str  # "pypi" or "npm"
@@ -37,6 +38,7 @@ class Dependency:
 @dataclass
 class ParsedManifest:
     """Result of parsing a dependency manifest file."""
+
     dependencies: list[Dependency]
     manifest_path: str
     ecosystem: str
@@ -49,10 +51,10 @@ def parse_requirements_txt(path: Path) -> ParsedManifest:
 
     # Match package==version or package>=version or package~=version
     pattern = re.compile(
-        r'^([a-zA-Z0-9_-]+(?:\[[a-zA-Z0-9_,\s]+\])?)'  # package name + extras
-        r'\s*([=~<>!]=?\s*)'  # operator
-        r'([0-9][0-9a-zA-Z.*+!-]*)'  # version
-        r'(?:\s*;\s*(.*))?$',  # optional marker
+        r"^([a-zA-Z0-9_-]+(?:\[[a-zA-Z0-9_,\s]+\])?)"  # package name + extras
+        r"\s*([=~<>!]=?\s*)"  # operator
+        r"([0-9][0-9a-zA-Z.*+!-]*)"  # version
+        r"(?:\s*;\s*(.*))?$",  # optional marker
         re.MULTILINE,
     )
 
@@ -69,14 +71,16 @@ def parse_requirements_txt(path: Path) -> ParsedManifest:
         else:
             base = raw_name
 
-        deps.append(Dependency(
-            name=base,
-            pinned_version=version,
-            ecosystem="pypi",
-            manifest=str(path.name),
-            extras=extras,
-            marker=marker,
-        ))
+        deps.append(
+            Dependency(
+                name=base,
+                pinned_version=version,
+                ecosystem="pypi",
+                manifest=str(path.name),
+                extras=extras,
+                marker=marker,
+            )
+        )
 
     return ParsedManifest(dependencies=deps, manifest_path=str(path), ecosystem="pypi")
 
@@ -84,9 +88,7 @@ def parse_requirements_txt(path: Path) -> ParsedManifest:
 def parse_pyproject_toml(path: Path) -> ParsedManifest:
     """Parse a pyproject.toml file for dependencies."""
     if tomllib is None:
-        raise RuntimeError(
-            "tomllib/tomli not available. Install with: pip install tomli"
-        )
+        raise RuntimeError("tomllib/tomli not available. Install with: pip install tomli")
 
     with open(path, "rb") as f:
         data = tomllib.load(f)
@@ -115,12 +117,14 @@ def parse_pyproject_toml(path: Path) -> ParsedManifest:
             continue
         version = _extract_version_from_poetry(version_spec)
         if version:
-            deps.append(Dependency(
-                name=name,
-                pinned_version=version,
-                ecosystem="pypi",
-                manifest=str(path.name),
-            ))
+            deps.append(
+                Dependency(
+                    name=name,
+                    pinned_version=version,
+                    ecosystem="pypi",
+                    manifest=str(path.name),
+                )
+            )
 
     return ParsedManifest(dependencies=deps, manifest_path=str(path), ecosystem="pypi")
 
@@ -154,7 +158,7 @@ def _parse_pep508(dep_str: str, manifest: str) -> Optional[Dependency]:
 
     # Extract version
     match = re.match(
-        r'^([a-zA-Z0-9_.-]+)\s*([=~<>!]=?\s*)\s*([0-9][0-9a-zA-Z.*+!-]*)',
+        r"^([a-zA-Z0-9_.-]+)\s*([=~<>!]=?\s*)\s*([0-9][0-9a-zA-Z.*+!-]*)",
         base,
     )
     if not match:
@@ -177,12 +181,12 @@ def _parse_pep508(dep_str: str, manifest: str) -> Optional[Dependency]:
 def _extract_version_from_poetry(spec) -> Optional[str]:
     """Extract a version string from Poetry dependency spec."""
     if isinstance(spec, str):
-        match = re.search(r'([0-9][0-9a-zA-Z.*+!-]+)', spec)
+        match = re.search(r"([0-9][0-9a-zA-Z.*+!-]+)", spec)
         return match.group(1) if match else None
     if isinstance(spec, dict):
         version = spec.get("version", "")
         if version:
-            match = re.search(r'([0-9][0-9a-zA-Z.*+!-]+)', version)
+            match = re.search(r"([0-9][0-9a-zA-Z.*+!-]+)", version)
             return match.group(1) if match else None
     return None
 
@@ -198,12 +202,14 @@ def parse_package_json(path: Path) -> ParsedManifest:
         for name, version_spec in data.get(section, {}).items():
             version = _extract_npm_version(version_spec)
             if version:
-                deps.append(Dependency(
-                    name=name,
-                    pinned_version=version,
-                    ecosystem="npm",
-                    manifest=str(path.name),
-                ))
+                deps.append(
+                    Dependency(
+                        name=name,
+                        pinned_version=version,
+                        ecosystem="npm",
+                        manifest=str(path.name),
+                    )
+                )
 
     return ParsedManifest(dependencies=deps, manifest_path=str(path), ecosystem="npm")
 
@@ -211,7 +217,7 @@ def parse_package_json(path: Path) -> ParsedManifest:
 def _extract_npm_version(spec: str) -> Optional[str]:
     """Extract a clean version from npm version spec strings."""
     # Remove prefixes: ^, ~, >=, >, <=, <, =, v
-    cleaned = re.sub(r'^[\^~>=<=]+v?', '', spec.strip())
+    cleaned = re.sub(r"^[\^~>=<=]+v?", "", spec.strip())
 
     # Handle ranges like "1.2.3 - 2.0.0"
     if " - " in cleaned:
@@ -225,7 +231,7 @@ def _extract_npm_version(spec: str) -> Optional[str]:
     cleaned = cleaned.replace("x", "0").replace("*", "0")
 
     # Extract version
-    match = re.match(r'^([0-9][0-9a-zA-Z.-]*)', cleaned)
+    match = re.match(r"^([0-9][0-9a-zA-Z.-]*)", cleaned)
     return match.group(1) if match else None
 
 
@@ -245,8 +251,7 @@ def discover_manifests(project_path: Path) -> list[ParsedManifest]:
     for filename, parser in manifest_configs:
         for found in project_path.rglob(filename):
             # Skip node_modules and virtual environments
-            if any(part in {"node_modules", ".venv", "venv", "__pycache__", ".git", "dist", "build"}
-                   for part in found.parts):
+            if any(part in {"node_modules", ".venv", "venv", "__pycache__", ".git", "dist", "build"} for part in found.parts):
                 continue
 
             resolved = str(found.resolve())

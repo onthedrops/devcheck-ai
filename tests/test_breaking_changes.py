@@ -1,18 +1,10 @@
 """Tests for breaking changes registry integration."""
 
-import json
-import sys
-from pathlib import Path
-from unittest.mock import patch, MagicMock
-
-import pytest
-
 from devcheck_ai.breaking_changes import (
     BreakingChange,
-    BreakingChangeMatch,
+    _matches_version_range,
     load_registry,
     match_breaking_changes,
-    _matches_version_range,
 )
 from devcheck_ai.core import CheckResult, DriftType, RiskLevel
 from devcheck_ai.manifests import Dependency

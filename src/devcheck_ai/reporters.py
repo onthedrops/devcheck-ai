@@ -3,17 +3,14 @@
 from __future__ import annotations
 
 import json
-from typing import Optional
 
 from rich.console import Console
-from rich.table import Table
 from rich.panel import Panel
-from rich.text import Text
+from rich.table import Table
 
-from .core import CheckResult, RiskLevel, summarize_results
-from .breaking_changes import BreakingChangeMatch
 from .autofix import FixReport
-
+from .breaking_changes import BreakingChangeMatch
+from .core import CheckResult, RiskLevel, summarize_results
 
 RISK_COLORS = {
     RiskLevel.NONE: "green",
@@ -68,7 +65,6 @@ def report_cli(
 
     for result in sorted(results, key=lambda r: list(RiskLevel).index(r.risk_level), reverse=True):
         risk_icon = RISK_ICONS.get(result.risk_level, "?")
-        color = RISK_COLORS.get(result.risk_level, "white")
 
         latest = result.latest_version or "N/A"
         released = result.release_date or "N/A"
@@ -94,10 +90,7 @@ def report_cli(
     if summary["high_risk_packages"]:
         console.print("[bold red]High Risk Dependencies:[/bold red]")
         for pkg in summary["high_risk_packages"]:
-            console.print(
-                f"  [red]{pkg['name']}[/red] ({pkg['ecosystem']}) "
-                f"pinned={pkg['pinned']} latest={pkg.get('latest', 'N/A')}"
-            )
+            console.print(f"  [red]{pkg['name']}[/red] ({pkg['ecosystem']}) pinned={pkg['pinned']} latest={pkg.get('latest', 'N/A')}")
             console.print(f"    {pkg['details']}")
         console.print()
 
@@ -155,9 +148,7 @@ def report_json(
         ],
     }
     if breaking_changes:
-        output["breaking_changes"] = {
-            name: match.to_dict() for name, match in breaking_changes.items()
-        }
+        output["breaking_changes"] = {name: match.to_dict() for name, match in breaking_changes.items()}
     return json.dumps(output, indent=2)
 
 
@@ -175,10 +166,7 @@ def report_markdown(
     lines = [
         "# devcheck-ai Report",
         "",
-        f"**{total} dependencies checked** | "
-        f"{up_to_date} up to date | "
-        f"{high} high risk | "
-        f"{deprecated} deprecated",
+        f"**{total} dependencies checked** | {up_to_date} up to date | {high} high risk | {deprecated} deprecated",
         "",
     ]
 
@@ -271,10 +259,7 @@ def report_fix(report: FixReport, console: Console) -> None:
         console.print()
         console.print("  [bold green]Applied Fixes:[/bold green]")
         for plan in applied:
-            console.print(
-                f"    [green]✓[/green] {plan.file_path.name}:{plan.line} "
-                f"[{plan.rule_id}] {plan.old_text[:60]}"
-            )
+            console.print(f"    [green]✓[/green] {plan.file_path.name}:{plan.line} [{plan.rule_id}] {plan.old_text[:60]}")
             if plan.migration_note:
                 console.print(f"      [dim]{plan.migration_note}[/dim]")
 
@@ -283,7 +268,4 @@ def report_fix(report: FixReport, console: Console) -> None:
         console.print("  [bold yellow]Skipped Fixes:[/bold yellow]")
         for plan in skipped:
             reason = plan.skipped_reason or "unknown"
-            console.print(
-                f"    [yellow]→[/yellow] {plan.file_path.name}:{plan.line} "
-                f"[{plan.rule_id}] — {reason}"
-            )
+            console.print(f"    [yellow]→[/yellow] {plan.file_path.name}:{plan.line} [{plan.rule_id}] — {reason}")

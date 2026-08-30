@@ -25,6 +25,7 @@ from typing import Optional
 @dataclass
 class FixPlan:
     """A single planned code fix."""
+
     file_path: Path
     line: int
     rule_id: str
@@ -42,6 +43,7 @@ class FixPlan:
 @dataclass
 class FixReport:
     """Summary of a fix run."""
+
     total_planned: int = 0
     total_applied: int = 0
     total_skipped: int = 0
@@ -153,7 +155,6 @@ FIX_RULES: list[dict] = [
         "needs_client": False,
         "migration_note": "Error classes moved from openai.error module to top-level openai package. Import them directly: from openai import RateLimitError.",
     },
-
     # ── Google Generative AI (google-generativeai → google-genai) ──
     {
         "rule_id": "google-py-import",
@@ -254,7 +255,6 @@ FIX_RULES: list[dict] = [
         "needs_client": False,
         "migration_note": "caching.CachedContent.create() removed. Use client.caches.create(...).",
     },
-
     # ── Google Vertex AI (google-cloud-aiplatform → google-genai with vertexai=True) ──
     {
         "rule_id": "vertex-py-import",
@@ -409,7 +409,6 @@ FIX_RULES: list[dict] = [
         "needs_client": False,
         "migration_note": "TextGenerationModel.predict() removed. Use client.models.generate_content(model=..., contents=...).",
     },
-
     # ── HuggingFace Transformers 4.x → 5.x ──
     {
         "rule_id": "transformers-py-use-auth-token",
@@ -447,7 +446,6 @@ FIX_RULES: list[dict] = [
         "needs_client": False,
         "migration_note": "Direct load_in_4bit removed. Use BitsAndBytesConfig with quantization_config parameter.",
     },
-
     # ── LangChain 0.1 → 0.2 (import path changes) ──
     {
         "rule_id": "langchain-py-schema-messages",
@@ -485,7 +483,6 @@ FIX_RULES: list[dict] = [
         "needs_client": False,
         "migration_note": "LLM classes moved to provider packages in v0.2.",
     },
-
     # ── LangChain 0.2 (additional import path changes) ──
     {
         "rule_id": "langchain-py-schema-document",
@@ -523,7 +520,6 @@ FIX_RULES: list[dict] = [
         "needs_client": False,
         "migration_note": "Document loaders moved to langchain-community package.",
     },
-
     # ── LangChain community → provider (OpenAI only, exact class match) ──
     {
         "rule_id": "langchain-py-community-chat-openai",
@@ -552,7 +548,6 @@ FIX_RULES: list[dict] = [
         "needs_client": False,
         "migration_note": "OpenAI LLM moved from langchain-community to langchain-openai provider package.",
     },
-
     # ── LangChain function calling utilities ──
     {
         "rule_id": "langchain-py-fc-import-path",
@@ -608,7 +603,6 @@ FIX_RULES: list[dict] = [
         "needs_client": False,
         "migration_note": "Function renamed to convert_to_openai_tool.",
     },
-
     # ── LangChain retriever methods ──
     {
         "rule_id": "langchain-py-get-relevant-docs",
@@ -628,7 +622,6 @@ FIX_RULES: list[dict] = [
         "needs_client": False,
         "migration_note": "BaseRetriever.aget_relevant_documents() deprecated in favor of .ainvoke().",
     },
-
     # ── LangChain ChatOpenAI without model ──
     {
         "rule_id": "langchain-py-chat-openai-no-model",
@@ -639,7 +632,6 @@ FIX_RULES: list[dict] = [
         "needs_client": False,
         "migration_note": "LangChain 0.2 requires explicit model specification. Replace 'gpt-4' with the model you intend to use.",
     },
-
     # ── LangChain v0.3+ (Pydantic 2 migration) ──
     {
         "rule_id": "langchain-v03-pydantic-v1-bridge",
@@ -722,7 +714,6 @@ FIX_RULES: list[dict] = [
         "needs_client": False,
         "migration_note": "v1.0 moved memory classes to langchain-classic. Use LangGraph checkpointer for new code.",
     },
-
     # ── LlamaIndex v0.10+ (import path changes) ──
     {
         "rule_id": "llamaindex-py-core-import",
@@ -769,7 +760,6 @@ FIX_RULES: list[dict] = [
         "needs_client": False,
         "migration_note": "GPTVectorStoreIndex consolidated into VectorStoreIndex.",
     },
-
     # ── Pinecone v2→v3 (client init migration) ──
     {
         "rule_id": "pinecone-py-init",
@@ -798,7 +788,6 @@ FIX_RULES: list[dict] = [
         "needs_client": False,
         "migration_note": "Control-plane operations moved to instance methods on Pinecone client.",
     },
-
     # ── Weaviate v3→v4 (client init migration) ──
     {
         "rule_id": "weaviate-py-client-class",
@@ -863,7 +852,6 @@ FIX_RULES: list[dict] = [
         "needs_client": False,
         "migration_note": "Filter(path=...) replaced by Filter.by_property(name=...).",
     },
-
     # ── ChromaDB (client init migration) ──
     {
         "rule_id": "chromadb-py-persistent-client",
@@ -901,7 +889,6 @@ FIX_RULES: list[dict] = [
         "needs_client": False,
         "migration_note": "max_batch_size property replaced by get_max_batch_size() method.",
     },
-
     # ── Cohere (v1→v2 client migration) ──
     {
         "rule_id": "cohere-py-client-v2",
@@ -930,7 +917,6 @@ FIX_RULES: list[dict] = [
         "needs_client": False,
         "migration_note": "Generate API deprecated. Use chat() with messages list.",
     },
-
     # ── Mistral AI (client consolidation) ──
     {
         "rule_id": "mistral-py-import",
@@ -986,7 +972,6 @@ FIX_RULES: list[dict] = [
         "needs_client": False,
         "migration_note": "ChatMessage replaced by role-specific message types.",
     },
-
     # ── Haystack (v1→v2 migration) ──
     {
         "rule_id": "haystack-py-nodes-import",
@@ -1057,9 +1042,21 @@ FIX_RULES: list[dict] = [
 # ─── File Discovery ─────────────────────────────────────────────────────────
 
 SKIP_DIRS = {
-    ".git", "__pycache__", "node_modules", ".venv", "venv", "env",
-    ".tox", ".pytest_cache", "dist", "build", ".eggs", "*.egg-info",
-    ".mypy_cache", ".ruff_cache", ".devcheck-ai-backups",
+    ".git",
+    "__pycache__",
+    "node_modules",
+    ".venv",
+    "venv",
+    "env",
+    ".tox",
+    ".pytest_cache",
+    "dist",
+    "build",
+    ".eggs",
+    "*.egg-info",
+    ".mypy_cache",
+    ".ruff_cache",
+    ".devcheck-ai-backups",
 }
 
 
@@ -1076,6 +1073,7 @@ def discover_python_files(project_path: Path) -> list[Path]:
 
 
 # ─── Fix Engine ─────────────────────────────────────────────────────────────
+
 
 class FixEngine:
     """Scans files, generates fix plans, and optionally applies them."""
@@ -1104,35 +1102,39 @@ class FixEngine:
                     matches = list(re.finditer(rule["pattern"], line))
                     for match in matches:
                         replacement = match.expand(rule["replacement"])
-                        plans.append(FixPlan(
-                            file_path=file_path,
-                            line=i,
-                            rule_id=rule["rule_id"],
-                            package=rule["package"],
-                            change_type=rule.get("change_type", "renamed_method"),
-                            old_text=line.strip(),
-                            new_text=replacement.strip(),
-                            confidence=rule["confidence"],
-                            needs_client=rule.get("needs_client", False),
-                            migration_note=rule["migration_note"],
-                        ))
+                        plans.append(
+                            FixPlan(
+                                file_path=file_path,
+                                line=i,
+                                rule_id=rule["rule_id"],
+                                package=rule["package"],
+                                change_type=rule.get("change_type", "renamed_method"),
+                                old_text=line.strip(),
+                                new_text=replacement.strip(),
+                                confidence=rule["confidence"],
+                                needs_client=rule.get("needs_client", False),
+                                migration_note=rule["migration_note"],
+                            )
+                        )
                 else:
                     matches = list(re.finditer(rule["pattern"], line))
                     for match in matches:
                         replacement = rule["replacement"]
-                        new_line = line[:match.start()] + replacement + line[match.end():]
-                        plans.append(FixPlan(
-                            file_path=file_path,
-                            line=i,
-                            rule_id=rule["rule_id"],
-                            package=rule["package"],
-                            change_type=rule.get("change_type", "renamed_method"),
-                            old_text=line.strip(),
-                            new_text=new_line.strip(),
-                            confidence=rule["confidence"],
-                            needs_client=rule.get("needs_client", False),
-                            migration_note=rule["migration_note"],
-                        ))
+                        new_line = line[: match.start()] + replacement + line[match.end() :]
+                        plans.append(
+                            FixPlan(
+                                file_path=file_path,
+                                line=i,
+                                rule_id=rule["rule_id"],
+                                package=rule["package"],
+                                change_type=rule.get("change_type", "renamed_method"),
+                                old_text=line.strip(),
+                                new_text=new_line.strip(),
+                                confidence=rule["confidence"],
+                                needs_client=rule.get("needs_client", False),
+                                migration_note=rule["migration_note"],
+                            )
+                        )
 
         return plans
 
@@ -1196,7 +1198,7 @@ class FixEngine:
             return "\n".join(client_lines) + "\n\n" + content
 
         # Insert after last import
-        lines[last_import_idx + 1:last_import_idx + 1] = client_lines
+        lines[last_import_idx + 1 : last_import_idx + 1] = client_lines
         return "\n".join(lines)
 
     def _get_client_init_lines(self, package: str) -> list[str]:
@@ -1345,13 +1347,9 @@ class FixEngine:
                     rule = next((r for r in self.rules if r["rule_id"] == plan.rule_id), None)
                     if rule:
                         if "\\1" in rule["replacement"]:
-                            modified_lines[plan.line - 1] = re.sub(
-                                rule["pattern"], rule["replacement"], modified_lines[plan.line - 1]
-                            )
+                            modified_lines[plan.line - 1] = re.sub(rule["pattern"], rule["replacement"], modified_lines[plan.line - 1])
                         else:
-                            modified_lines[plan.line - 1] = re.sub(
-                                rule["pattern"], rule["replacement"], modified_lines[plan.line - 1]
-                            )
+                            modified_lines[plan.line - 1] = re.sub(rule["pattern"], rule["replacement"], modified_lines[plan.line - 1])
 
             # Check if client injection is needed
             needs_client = any(p.needs_client for p in file_plans)

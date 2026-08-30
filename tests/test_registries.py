@@ -1,16 +1,12 @@
 """Tests for registry clients (mocked)."""
 
-import pytest
-from unittest.mock import patch, MagicMock
-from pathlib import Path
+from unittest.mock import MagicMock, patch
 
 from devcheck_ai.registries import (
-    fetch_pypi_info,
     fetch_npm_info,
     fetch_package_info,
-    PackageInfo,
+    fetch_pypi_info,
 )
-
 
 MOCK_PYPI_RESPONSE = {
     "info": {

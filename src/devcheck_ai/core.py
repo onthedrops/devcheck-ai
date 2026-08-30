@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Optional
 
-from packaging.version import Version, InvalidVersion
+from packaging.version import InvalidVersion, Version
 
 from .manifests import Dependency
 from .registries import PackageInfo
@@ -34,6 +34,7 @@ class DriftType(str, Enum):
 @dataclass
 class CheckResult:
     """Result of checking a single dependency against its registry."""
+
     dependency: Dependency
     package_info: PackageInfo
     latest_version: Optional[str]
@@ -197,20 +198,24 @@ def summarize_results(results: list[CheckResult]) -> dict:
         summary["by_drift"][result.drift_type.value] += 1
 
         if result.risk_level in (RiskLevel.HIGH, RiskLevel.CRITICAL):
-            summary["high_risk_packages"].append({
-                "name": result.dependency.name,
-                "ecosystem": result.dependency.ecosystem,
-                "pinned": result.dependency.pinned_version,
-                "latest": result.latest_version,
-                "risk": result.risk_level.value,
-                "details": result.details,
-            })
+            summary["high_risk_packages"].append(
+                {
+                    "name": result.dependency.name,
+                    "ecosystem": result.dependency.ecosystem,
+                    "pinned": result.dependency.pinned_version,
+                    "latest": result.latest_version,
+                    "risk": result.risk_level.value,
+                    "details": result.details,
+                }
+            )
 
         if result.drift_type == DriftType.DEPRECATED:
-            summary["deprecated_packages"].append({
-                "name": result.dependency.name,
-                "message": result.package_info.deprecation_message,
-            })
+            summary["deprecated_packages"].append(
+                {
+                    "name": result.dependency.name,
+                    "message": result.package_info.deprecation_message,
+                }
+            )
 
         if result.risk_level == RiskLevel.NONE:
             summary["up_to_date"] += 1
