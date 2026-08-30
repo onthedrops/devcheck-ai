@@ -1,5 +1,10 @@
 # devcheck-ai
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Tests](https://img.shields.io/badge/tests-150%20passing-brightgreen)](https://github.com/onthedrops/devcheck-ai)
+[![Fix Rules](https://img.shields.io/badge/auto--fix-103%20rules%20%7C%2013%20SDKs-blue)](https://github.com/onthedrops/devcheck-ai)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen)](CONTRIBUTING.md)
+
 **Preflight dependency reality check for AI-generated code.**
 
 When AI assistants write code, they may use libraries and APIs from their training data that are now outdated, deprecated, or have shipped breaking changes. `devcheck-ai` scans your project's dependency manifests, checks each one against its live registry (PyPI, npm), and reports version drift, deprecations, and risk levels — **before** you ship broken code.

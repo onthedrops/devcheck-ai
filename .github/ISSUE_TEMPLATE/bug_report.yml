@@ -1,0 +1,44 @@
+name: Bug report
+title: "[Bug] "
+description: Report incorrect detection or a false positive
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to file a bug report.
+  - type: input
+    id: package
+    attributes:
+      label: Package affected
+      placeholder: e.g. openai, langchain
+    validations:
+      required: true
+  - type: textarea
+    id: code
+    attributes:
+      label: Code that triggered the issue
+      render: python
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected
+      description: What devcheck-ai should have reported or fixed
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: What actually happened
+      description: The actual output or fix applied
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: devcheck-ai version
+      placeholder: run `devcheck-ai --version`
+    validations:
+      required: true
