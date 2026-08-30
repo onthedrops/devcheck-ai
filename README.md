@@ -1,9 +1,11 @@
 # devcheck-ai
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![CI](https://github.com/onthedrops/devcheck-ai/actions/workflows/ci.yml/badge.svg)](https://github.com/onthedrops/devcheck-ai/actions/workflows/ci.yml)
 [![Tests](https://img.shields.io/badge/tests-150%20passing-brightgreen)](https://github.com/onthedrops/devcheck-ai)
 [![Fix Rules](https://img.shields.io/badge/auto--fix-103%20rules%20%7C%2013%20SDKs-blue)](https://github.com/onthedrops/devcheck-ai)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen)](CONTRIBUTING.md)
+[![PyPI](https://img.shields.io/badge/PyPI-devcheck--ai-orange)](https://pypi.org/project/devcheck-ai/)
 
 **Preflight dependency reality check for AI-generated code.**
 
@@ -28,28 +30,41 @@ Without a preflight check, AI-generated code may reference APIs that no longer e
 - **Identifies unmaintained packages** — No release in 2+ years (npm)
 - **Risk scoring** — Low (patch) / Medium (minor) / High (major) / Critical (deprecated)
 - **Smoke testing** — Optionally installs and imports packages in an isolated environment
-- **Breaking changes registry** — Cross-references the [ai-sdk-breakage-registry](https://github.com/ai-sdk-breakage-registry/ai-sdk-breakage-registry) to show exactly what broke and how to fix it
-- **Auto-fix mode** — Scans source files and rewrites deprecated API calls automatically. Dry-run diff by default, with backup-protected `--write-fixes` mode
-- **Multiple output formats** — CLI table, JSON, Markdown report
+- **Breaking changes registry** — Cross-references the [ai-sdk-breakage-registry](https://github.com/onthedrops/ai-sdk-breakage-registry) to show exactly what broke and how to fix it
 
-## Installation
+## Install
 
 ```bash
 pip install devcheck-ai
 ```
 
-Or with [pipx](https://pypa.github.io/pipx/):
+Or from source:
 
 ```bash
-pipx install devcheck-ai
+git clone https://github.com/onthedrops/devcheck-ai.git
+cd devcheck-ai
+pip install -e .
 ```
 
 ## Quick Start
 
 ```bash
-# Scan a project
+# Scan a project for outdated deps and breaking changes
 devcheck-ai ./my-project
 
+# Preview auto-fixes without changing files
+devcheck-ai ./my-project --fix
+
+# Apply fixes (creates backups automatically)
+devcheck-ai ./my-project --write-fixes
+```
+- **Auto-fix mode** — Scans source files and rewrites deprecated API calls automatically. Dry-run diff by default, with backup-protected `--write-fixes` mode
+- **Multiple output formats** — CLI table, JSON, Markdown report
+- **CI-ready** — Exit codes for version drift (`--fail-on drift`) or breaking changes (`--fail-on breaking`)
+
+## Usage
+
+```bash
 # Get JSON output for CI
 devcheck-ai ./my-project --format json -o report.json
 

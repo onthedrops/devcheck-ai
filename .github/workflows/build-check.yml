@@ -1,0 +1,44 @@
+name: Build Check
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    name: Verify package builds
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install build tools
+        run: |
+          python -m pip install --upgrade pip
+          pip install build twine
+
+      - name: Build sdist and wheel
+        run: python -m build
+
+      - name: Check package metadata
+        run: twine check dist/*
+
+      - name: Verify install from wheel
+        run: |
+          pip install dist/*.whl
+          devcheck-ai --help
+          python -c "from devcheck_ai.autofix import FIX_RULES; print(f'{len(FIX_RULES)} fix rules loaded')"
+
+      - name: Verify registry.json is bundled
+        run: |
+          python -c "
+          import importlib.resources, json
+          data = json.loads(importlib.resources.files('devcheck_ai.data').joinpath('registry.json').read_text())
+          total = sum(len(e['changes']) for e in data['entries'])
+          print(f'Registry bundled: {total} changes across {len(data[\"entries\"])} packages')
+          assert total >= 234, f'Expected >= 234 changes, got {total}'
+          "
