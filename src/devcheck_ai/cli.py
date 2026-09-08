@@ -45,6 +45,11 @@ from .smoke import smoke_test
     help="Show changelog/repository URLs in output",
 )
 @click.option(
+    "--refresh-registry",
+    is_flag=True,
+    help="Force a re-download of the breaking-changes registry, ignoring the cache",
+)
+@click.option(
     "--timeout",
     default=15,
     show_default=True,
@@ -93,6 +98,7 @@ def main(
     output_file: Path | None,
     smoke: bool,
     show_urls: bool,
+    refresh_registry: bool,
     timeout: int,
     delay: float,
     fail_on: str,
@@ -174,7 +180,7 @@ def main(
     if breaking_changes_flag:
         console.print()
         console.print("[bold cyan]Checking AI SDK breaking changes registry...[/bold cyan]")
-        registry = load_registry()
+        registry = load_registry(refresh=refresh_registry)
         if registry:
             bc_matches = match_breaking_changes(results, registry)
             if bc_matches:

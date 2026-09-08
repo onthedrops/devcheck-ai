@@ -1,5 +1,10 @@
 """Tests for breaking changes registry integration."""
 
+import json
+import os
+import time
+
+from devcheck_ai import breaking_changes as bc
 from devcheck_ai.breaking_changes import (
     BreakingChange,
     _matches_version_range,
@@ -140,3 +145,87 @@ class TestMatchBreakingChanges:
         assert "sources" in d
         assert len(d["sources"]) > 0
         assert len(d["changes"]) > 0
+
+
+class TestRegistryCache:
+    """Cache and remote-refresh behaviour for the breaking-changes registry."""
+
+    def test_cache_not_fresh_when_missing(self, tmp_path):
+        assert bc._cache_is_fresh(tmp_path / "absent.json") is False
+
+    def test_cache_fresh_when_just_written(self, tmp_path):
+        p = tmp_path / "registry.json"
+        p.write_text("{}")
+        assert bc._cache_is_fresh(p) is True
+
+    def test_cache_stale_past_ttl(self, tmp_path):
+        p = tmp_path / "registry.json"
+        p.write_text("{}")
+        old = time.time() - (bc.CACHE_TTL_SECONDS + 60)
+        os.utime(p, (old, old))
+        assert bc._cache_is_fresh(p) is False
+
+    def test_fetch_returns_none_on_network_error(self, monkeypatch):
+        def boom(*a, **k):
+            raise OSError("no network")
+
+        monkeypatch.setattr("requests.get", boom)
+        assert bc.fetch_registry() is None
+
+    def test_fetch_rejects_payload_without_entries(self, monkeypatch, tmp_path):
+        class Resp:
+            def raise_for_status(self):
+                pass
+
+            def json(self):
+                return {"version": "1", "total_changes": 0}
+
+        monkeypatch.setattr("requests.get", lambda *a, **k: Resp())
+        monkeypatch.setattr(bc, "CACHE_PATH", tmp_path / "registry.json")
+        assert bc.fetch_registry() is None
+        assert not (tmp_path / "registry.json").exists()
+
+    def test_fetch_rejects_empty_entries(self, monkeypatch, tmp_path):
+        class Resp:
+            def raise_for_status(self):
+                pass
+
+            def json(self):
+                return {"entries": []}
+
+        monkeypatch.setattr("requests.get", lambda *a, **k: Resp())
+        monkeypatch.setattr(bc, "CACHE_PATH", tmp_path / "registry.json")
+        assert bc.fetch_registry() is None
+
+    def test_fetch_writes_cache_on_valid_payload(self, monkeypatch, tmp_path):
+        payload = {"entries": [{"package": "openai", "ecosystem": "pypi"}]}
+
+        class Resp:
+            def raise_for_status(self):
+                pass
+
+            def json(self):
+                return payload
+
+        monkeypatch.setattr("requests.get", lambda *a, **k: Resp())
+        monkeypatch.setattr(bc, "CACHE_PATH", tmp_path / "registry.json")
+        result = bc.fetch_registry()
+        assert result == tmp_path / "registry.json"
+        assert json.loads(result.read_text())["entries"][0]["package"] == "openai"
+
+    def test_load_falls_back_to_bundled_when_offline(self, monkeypatch, tmp_path):
+        monkeypatch.setattr("requests.get", lambda *a, **k: (_ for _ in ()).throw(OSError()))
+        monkeypatch.setattr(bc, "CACHE_PATH", tmp_path / "registry.json")
+        registry = bc.load_registry()
+        assert len(registry) > 0
+
+    def test_custom_path_skips_network(self, monkeypatch, tmp_path):
+        def fail(*a, **k):
+            raise AssertionError("network should not be used with custom_path")
+
+        monkeypatch.setattr(bc, "fetch_registry", fail)
+        p = tmp_path / "custom.json"
+        p.write_text(json.dumps({"entries": [{"package": "cohere", "ecosystem": "pypi"}]}))
+        registry = bc.load_registry(custom_path=p)
+        assert len(registry) == 1
+        assert registry[0].package == "cohere"
