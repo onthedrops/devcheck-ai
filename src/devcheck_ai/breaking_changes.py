@@ -91,7 +91,7 @@ REGISTRY_FALLBACK_PATHS = [
 ]
 
 # Remote URL for fetching the latest registry
-REGISTRY_URL = "https://raw.githubusercontent.com/ai-sdk-breakage-registry/ai-sdk-breakage-registry/main/generated/registry.json"
+REGISTRY_URL = "https://raw.githubusercontent.com/onthedrops/ai-sdk-breakage-registry/main/generated/registry.json"
 
 
 def load_registry(custom_path: Optional[Path] = None) -> list[BreakingChange]:

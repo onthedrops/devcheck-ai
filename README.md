@@ -3,7 +3,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![CI](https://github.com/onthedrops/devcheck-ai/actions/workflows/ci.yml/badge.svg)](https://github.com/onthedrops/devcheck-ai/actions/workflows/ci.yml)
 [![Tests](https://img.shields.io/badge/tests-150%20passing-brightgreen)](https://github.com/onthedrops/devcheck-ai)
-[![Fix Rules](https://img.shields.io/badge/auto--fix-103%20rules%20%7C%2013%20SDKs-blue)](https://github.com/onthedrops/devcheck-ai)
+[![Fix Rules](https://img.shields.io/badge/auto--fix-103%20rules%20%7C%2012%20SDKs-blue)](https://github.com/onthedrops/devcheck-ai)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen)](CONTRIBUTING.md)
 [![PyPI](https://img.shields.io/badge/PyPI-devcheck--ai-orange)](https://pypi.org/project/devcheck-ai/)
 
@@ -226,7 +226,7 @@ Contributions welcome. Areas we'd like help with:
 ### Development
 
 ```bash
-git clone https://github.com/devcheck-ai/devcheck-ai.git
+git clone https://github.com/onthedrops/devcheck-ai.git
 cd devcheck-ai
 pip install -e ".[dev]"
 pytest tests/ -v
