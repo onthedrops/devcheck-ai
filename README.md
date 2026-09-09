@@ -182,7 +182,7 @@ jobs:
         with:
           python-version: "3.12"
       - run: pip install devcheck-ai
-      - run: devcheck-ai scan ./ --format markdown -o depcheck-report.md
+      - run: devcheck-ai ./ --format markdown -o depcheck-report.md
       - uses: actions/upload-artifact@v4
         with:
           name: dependency-report
@@ -198,7 +198,7 @@ The `--smoke` flag creates an isolated virtual environment (Python) or temp dire
 - Broken installs from version pin conflicts
 
 ```bash
-devcheck-ai scan ./my-project --smoke
+devcheck-ai ./my-project --smoke
 ```
 
 ## Why Not Dependabot/Snyk?
