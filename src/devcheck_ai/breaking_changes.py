@@ -93,7 +93,7 @@ REGISTRY_FALLBACK_PATHS = [
 ]
 
 # Remote URL for fetching the latest registry
-REGISTRY_URL = "https://raw.githubusercontent.com/onthedrops/ai-sdk-breakage-registry/main/generated/registry.json"
+REGISTRY_URL = "https://onthedrops.github.io/ai-sdk-breakage-registry/v1/registry.json"
 
 # Cached copy of the remote registry, refreshed on demand
 CACHE_PATH = Path(
