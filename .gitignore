@@ -28,3 +28,6 @@ htmlcov/
 # OS
 .DS_Store
 Thumbs.db
+
+# Backups written by --write-fixes
+.devcheck-ai-backups/

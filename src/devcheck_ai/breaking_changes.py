@@ -6,6 +6,7 @@ against known breaking changes when version drift is detected.
 
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import re
@@ -103,6 +104,13 @@ CACHE_PATH = Path(
 # A cached registry older than this is considered stale (7 days)
 CACHE_TTL_SECONDS = 7 * 24 * 60 * 60
 
+# Optional integrity pin. Set DEVCHECK_AI_REGISTRY_SHA256 to the expected
+# SHA-256 of registry.json and any fetch that does not match is discarded,
+# falling back to the bundled copy. The published digest lives beside the data
+# at v1/registry.json.sha256; pinning it means an unexpected change to the
+# published registry fails here rather than silently altering results.
+REGISTRY_SHA256_ENV = "DEVCHECK_AI_REGISTRY_SHA256"
+
 
 def _cache_is_fresh(path: Path = CACHE_PATH) -> bool:
     """True if a cached registry exists and is younger than CACHE_TTL_SECONDS."""
@@ -135,6 +143,12 @@ def fetch_registry(timeout: int = 10) -> Optional[Path]:
         return None
     if not data["entries"]:
         return None
+
+    expected = os.environ.get(REGISTRY_SHA256_ENV, "").strip().lower()
+    if expected:
+        actual = hashlib.sha256(response.content).hexdigest()
+        if actual != expected:
+            return None
 
     try:
         CACHE_PATH.parent.mkdir(parents=True, exist_ok=True)

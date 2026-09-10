@@ -1,5 +1,6 @@
 """Tests for breaking changes registry integration."""
 
+import hashlib
 import json
 import os
 import time
@@ -229,3 +230,51 @@ class TestRegistryCache:
         registry = bc.load_registry(custom_path=p)
         assert len(registry) == 1
         assert registry[0].package == "cohere"
+
+
+class TestRegistryPinning:
+    """Optional SHA-256 pinning of the fetched registry."""
+
+    @staticmethod
+    def _resp(payload: bytes):
+        class Resp:
+            content = payload
+
+            def raise_for_status(self):
+                pass
+
+            def json(self):
+                return json.loads(payload)
+
+        return Resp()
+
+    def test_matching_digest_is_accepted(self, monkeypatch, tmp_path):
+        payload = json.dumps({"entries": [{"package": "openai"}]}).encode()
+        digest = hashlib.sha256(payload).hexdigest()
+        monkeypatch.setenv(bc.REGISTRY_SHA256_ENV, digest)
+        monkeypatch.setattr("requests.get", lambda *a, **k: self._resp(payload))
+        monkeypatch.setattr(bc, "CACHE_PATH", tmp_path / "r.json")
+        assert bc.fetch_registry() is not None
+
+    def test_mismatched_digest_is_rejected(self, monkeypatch, tmp_path):
+        payload = json.dumps({"entries": [{"package": "openai"}]}).encode()
+        monkeypatch.setenv(bc.REGISTRY_SHA256_ENV, "0" * 64)
+        monkeypatch.setattr("requests.get", lambda *a, **k: self._resp(payload))
+        monkeypatch.setattr(bc, "CACHE_PATH", tmp_path / "r.json")
+        assert bc.fetch_registry() is None
+        assert not (tmp_path / "r.json").exists()
+
+    def test_uppercase_pin_is_accepted(self, monkeypatch, tmp_path):
+        payload = json.dumps({"entries": [{"package": "openai"}]}).encode()
+        digest = hashlib.sha256(payload).hexdigest().upper()
+        monkeypatch.setenv(bc.REGISTRY_SHA256_ENV, digest)
+        monkeypatch.setattr("requests.get", lambda *a, **k: self._resp(payload))
+        monkeypatch.setattr(bc, "CACHE_PATH", tmp_path / "r.json")
+        assert bc.fetch_registry() is not None
+
+    def test_no_pin_skips_the_check(self, monkeypatch, tmp_path):
+        payload = json.dumps({"entries": [{"package": "openai"}]}).encode()
+        monkeypatch.delenv(bc.REGISTRY_SHA256_ENV, raising=False)
+        monkeypatch.setattr("requests.get", lambda *a, **k: self._resp(payload))
+        monkeypatch.setattr(bc, "CACHE_PATH", tmp_path / "r.json")
+        assert bc.fetch_registry() is not None

@@ -200,6 +200,21 @@ The `--smoke` flag creates an isolated virtual environment (Python) or temp dire
 devcheck-ai ./my-project --smoke
 ```
 
+## Registry integrity
+
+The breaking-changes registry is fetched from a stable published URL and cached for
+seven days, falling back to a bundled snapshot when offline. To pin it, set the expected
+digest and any fetch that does not match is discarded:
+
+```bash
+export DEVCHECK_AI_REGISTRY_SHA256=$(curl -s \
+  https://onthedrops.github.io/ai-sdk-breakage-registry/v1/registry.json.sha256 | cut -d' ' -f1)
+```
+
+The digest is served from the same origin as the data, so this is not a defence against a
+compromised origin. It detects corrupted downloads and makes an unexpected change to the
+published registry fail on your side rather than silently altering results.
+
 ## Why Not Dependabot/Snyk?
 
 Those tools focus on **security vulnerabilities**. `devcheck-ai` focuses on **currentness and AI-code correctness** — is the version the AI assistant used actually the current one? Are there breaking changes between what was written and what's now live?
